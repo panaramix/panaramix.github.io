@@ -2,7 +2,7 @@ title: Заголовок
 email: your-email@domain.com
 description: > # this means to ignore newlines until "baseurl:"
   Описание сайта
-baseurl: "/geneo"
+baseurl: ""
 url: "https://panaramix.github.io/"
 twitter_username: jekyllrb
 github_username:  jekyll
