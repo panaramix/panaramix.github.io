@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Числа</title>
+
+</head>
+<body>
+    <div id="numbers" class="numbers">
+      <h1 id="counter"></h1>
+      <input type="button" value="Готово!" onClick="showParam()"/>
+    </div>
+
+    <div id="param" class="param">
+
+      <div class="field">
+        <label for="range">Количество разрядов</label>
+        <input type="text" id="range" value="2">
+      </div>
+
+      <div class="field">
+        <label for="amount">Количество чисел</label>
+        <input type="text" id="amount" value="10">
+      </div>
+
+      <div class="field">
+        <label for="interval">Интервал, мс</label>
+        <input type="text" id="interval" value="2000">
+      </div>
+
+      <div class="field">
+        <label for="negative">Отрицательные числа</label>
+        <input type="checkbox" id="negative">
+      </div>
+
+        <input type="button" value="Начать" onClick="startCount()"/>
+    </div>
+
+    <div id="debug"></div>
+
+    <script type="text/javascript">
+
+      var debug = document.getElementById("debug");
+      var counter = document.getElementById('counter');
+      var param = document.getElementById('param');
+      var numbers = document.getElementById('numbers');
+
+      function startCount() {
+
+        var range =  parseInt(document.getElementById("range").value, 10);
+        var amount = parseInt(document.getElementById("amount").value, 10);
+        var interval = parseInt(document.getElementById("interval").value, 10);
+        var negative = document.getElementById("negative").checked;
+
+        var arr = [];
+        var max = Math.pow(10, range) - 1;
+        var min = negative ? -max : 1;
+
+        for (i = 0; i < amount; i ++) {
+          arr.push(randomInteger(min, max));
+        }
+        //debug.innerHTML = arr;
+        numbers.classList.toggle('show');
+        param.classList.toggle('hide');
+
+        var j = -1;
+        setInterval(function () {
+          if (++ j < arr.length) {
+            counter.innerHTML = arr[j];
+          }
+        }, interval);
+      };
+
+      function showParam() {
+        numbers.classList.toggle('show');
+        param.classList.toggle('hide');
+      }
+
+      function randomInteger(min, max) {
+        var rand = min + Math.random() * (max + 1 - min);
+        rand = Math.floor(rand);
+        return rand;
+      };
+    </script>
+
+    <style type="text/css">
+
+        body {
+          font-family: sans-serif;
+          width:500px;
+          height:auto;
+          margin-left:auto;
+          margin-right:auto;
+        }
+
+        .param {
+            float:left;
+        }
+
+        .param.hide {
+            display: none;
+        }
+
+        .numbers {
+          display: none;
+        }
+
+        .numbers.show {
+          display: block;
+        }
+
+        h1 {
+          font-size: 1500%;
+        }
+
+        input[type="text"] {
+            width: 40px;
+        }
+
+        .field {
+            clear:both;
+            text-align:right;
+            line-height:25px;
+        }
+
+        label {
+            float:left;
+            padding-right:10px;
+        }
+    </style>
+
+</body>
+</html>
