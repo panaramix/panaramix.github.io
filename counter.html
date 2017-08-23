@@ -7,15 +7,16 @@
 </head>
 <body>
     <div id="numbers" class="numbers">
-      <div id="debug"></div>
+      <div id="numArray"  class="debug"></div>
+      <div id="sumArray" class="debug"></div>
       <h1 id="counter"></h1>
     </div>
 
     <div id="param" class="param">
 
       <div class="field">
-        <label for="range">Количество разрядов</label>
-        <input type="text" id="range" value="2">
+        <label for="digits">Количество разрядов</label>
+        <input type="text" id="digits" value="2">
       </div>
 
       <div class="field">
@@ -25,7 +26,7 @@
 
       <div class="field">
         <label for="interval">Интервал, мс</label>
-        <input type="text" id="interval" value="1000">
+        <input type="text" id="interval" value="2000">
       </div>
 
       <div class="field">
@@ -33,9 +34,9 @@
         <input type="checkbox" id="negative">
       </div>
 
-      <div class="field">
-        <label for="nocarryover">Без переноса на разряд</label>
-        <input type="checkbox" id="nocarryover" disabled>
+      <div class="field" title="Без переноса в старший разряд">
+        <label for="nocarryover">Упрощенный режим</label>
+        <input type="checkbox" id="nocarryover">
       </div>
 
         <input type="button" value="Начать" onClick="startCount()"/>
@@ -45,28 +46,30 @@
 
     <script type="text/javascript">
 
-      var debug = document.getElementById("debug");
+      var numArray = document.getElementById("numArray");
+      var sumArray = document.getElementById("sumArray");
       var counter = document.getElementById('counter');
       var param = document.getElementById('param');
       var numbers = document.getElementById('numbers');
 
       function startCount() {
 
-        var range =  parseInt(document.getElementById("range").value, 10);
+        var digits =  parseInt(document.getElementById("digits").value, 10);
         var amount = parseInt(document.getElementById("amount").value, 10);
         var interval = parseInt(document.getElementById("interval").value, 10);
         var negative = document.getElementById("negative").checked;
         var nocarryover = document.getElementById("nocarryover").checked;
 
         var arr = [];
-        var max = Math.pow(10, range) - 1;
+        var sumArr = [];
+        var max = Math.pow(10, digits) - 1;
         var min = negative ? -max : 1;
         var lastNum = 0;
-        var sum = 0;
+        var interimSum = 0;
 
-        for (i = 0; i < amount; i ++) {
+        for (var i = 0; i < amount; i ++) {
           if (nocarryover) {
-
+            var randomNum = randomIntegerNoCarryOver(digits, interimSum);
           } else {
             var randomNum = randomInteger(min, max);
           }
@@ -76,8 +79,11 @@
           }
           arr.push(randomNum);
           lastNum = randomNum;
+          interimSum += randomNum;
+          sumArr.push(interimSum);
         }
-        //debug.innerHTML = arr;
+        //numArray.innerHTML = arr;
+        //sumArray.innerHTML = sumArr;
         numbers.classList.toggle('show');
         param.classList.toggle('hide');
 
@@ -101,6 +107,33 @@
         rand = Math.floor(rand);
         return rand;
       };
+
+      function randomIntegerNoCarryOver(digits, interimSum) {
+
+        if (interimSum == 0) {
+          var max = Math.pow(10, digits) - 1;
+          return randomInteger(1, max);
+        }
+
+        var randomArr = [];
+        var divider =  Math.pow(10, digits - 1);
+        var digit = Math.floor(interimSum / divider);
+        var randomHighDigit = randomInteger(0, 9) - digit;
+        randomArr.push(randomHighDigit);
+        interimSum -= digit * divider;
+
+        for (var i = divider / 10; i >= 1; i /= 10) {
+          digit = Math.floor(interimSum / i);
+          if (randomHighDigit >= 0) {
+            randomArr.push(randomInteger(0, 9 - digit));
+          } else {
+            randomArr.push(randomInteger(0, digit));
+          }
+          interimSum -= digit * i;
+        }
+
+        return +randomArr.join("");
+      };
     </script>
 
     <style type="text/css">
@@ -109,6 +142,7 @@
           font-family: sans-serif;
           width:500px;
           height:auto;
+          text-align: center;
           margin-left:auto;
           margin-right:auto;
         }
