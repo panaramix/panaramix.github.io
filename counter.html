@@ -29,14 +29,19 @@
         <input type="text" id="interval" value="2000">
       </div>
 
-      <div class="field">
-        <label for="negative">Отрицательные числа</label>
-        <input type="checkbox" id="negative">
+      <div class="field" title="Только сложение">
+        <label for="plus">Только сложение</label>
+        <input name="mode" type="radio" value="plus" checked>
       </div>
 
-      <div class="field" title="Без переноса в старший разряд">
+      <div class="field" title="Сложение и вычитание">
+        <label for="plusminus">Сложение и вычитание</label>
+        <input name="mode" type="radio" value="plusminus">
+      </div>
+
+      <div class="field" title="Сложение и вычитание (без переноса на старший разряд)">
         <label for="nocarryover">Упрощенный режим</label>
-        <input type="checkbox" id="nocarryover">
+        <input name="mode" type="radio" value="nocarryover">
       </div>
 
         <input type="button" value="Начать" onClick="startCount()"/>
@@ -46,33 +51,41 @@
 
     <script type="text/javascript">
 
-      var numArray = document.getElementById("numArray");
-      var sumArray = document.getElementById("sumArray");
-      var counter = document.getElementById('counter');
-      var param = document.getElementById('param');
-      var numbers = document.getElementById('numbers');
+      var numArrayElem = document.getElementById("numArray");
+      var sumArrayElem = document.getElementById("sumArray");
+      var counterElem = document.getElementById('counter');
+      var paramElem = document.getElementById('param');
+      var numbersElem = document.getElementById('numbers');
 
       function startCount() {
 
         var digits =  parseInt(document.getElementById("digits").value, 10);
         var amount = parseInt(document.getElementById("amount").value, 10);
         var interval = parseInt(document.getElementById("interval").value, 10);
-        var negative = document.getElementById("negative").checked;
-        var nocarryover = document.getElementById("nocarryover").checked;
+        var mode = document.querySelector('input[name="mode"]:checked').value;
 
         var arr = [];
         var sumArr = [];
-        var max = Math.pow(10, digits) - 1;
-        var min = negative ? -max : 1;
+        var randomNum;
         var lastNum = 0;
         var interimSum = 0;
 
         for (var i = 0; i < amount; i ++) {
-          if (nocarryover) {
-            var randomNum = randomIntegerNoCarryOver(digits, interimSum);
-          } else {
-            var randomNum = randomInteger(min, max);
+
+          switch(mode) {
+            case 'plus':
+              var max = Math.pow(10, digits) - 1;
+              randomNum = randomInteger(0, max);
+              break;
+
+            case 'plusminus':
+              randomNum = getRandomPlusMinus(digits, interimSum);
+              break;
+
+            case 'nocarryover':
+              randomNum = getRandomNoCarryOver(digits, interimSum);
           }
+
           if (randomNum == 0 || randomNum == lastNum) {
             i --;
             continue;
@@ -82,23 +95,24 @@
           interimSum += randomNum;
           sumArr.push(interimSum);
         }
-        //numArray.innerHTML = arr;
-        //sumArray.innerHTML = sumArr;
-        numbers.classList.toggle('show');
-        param.classList.toggle('hide');
 
-        counter.innerHTML = arr[0];
+        numArrayElem.innerHTML = arr;
+        sumArrayElem.innerHTML = sumArr;
+        numbersElem.classList.toggle('show');
+        paramElem.classList.toggle('hide');
+
+        counterElem.innerHTML = arr[0];
         var j = 0;
         var intervalId = setInterval(function () {
           if (++ j < arr.length) {
-            counter.innerHTML = arr[j];
+            counterElem.innerHTML = arr[j];
           }
         }, interval);
 
         setTimeout(function () {
           clearInterval(intervalId);
-          numbers.classList.toggle('show');
-          param.classList.toggle('hide');
+          numbersElem.classList.toggle('show');
+          paramElem.classList.toggle('hide');
         }, amount * interval);
       };
 
@@ -108,32 +122,44 @@
         return rand;
       };
 
-      function randomIntegerNoCarryOver(digits, interimSum) {
+      function getRandomPlusMinus(digits, interimSum) {
+
+        var max = Math.pow(10, digits) - 1;
+        if (interimSum == 0) {
+          return randomInteger(1, max);
+        }
+
+        var num = randomInteger(1, max) - interimSum;
+        return num != 0 ? num : - interimSum;
+      }
+
+      function getRandomNoCarryOver(digits, interimSum) {
 
         if (interimSum == 0) {
           var max = Math.pow(10, digits) - 1;
           return randomInteger(1, max);
         }
 
-        var randomArr = [];
+        var digitsArr = [];
         var divider =  Math.pow(10, digits - 1);
         var digit = Math.floor(interimSum / divider);
-        var randomHighDigit = randomInteger(0, 9) - digit;
-        randomArr.push(randomHighDigit);
+        var highDigit = randomInteger(0, 9) - digit;
+        digitsArr.push(highDigit);
         interimSum -= digit * divider;
 
         for (var i = divider / 10; i >= 1; i /= 10) {
           digit = Math.floor(interimSum / i);
-          if (randomHighDigit >= 0) {
-            randomArr.push(randomInteger(0, 9 - digit));
+          if (highDigit >= 0) {
+            digitsArr.push(randomInteger(0, 9 - digit));
           } else {
-            randomArr.push(randomInteger(0, digit));
+            digitsArr.push(randomInteger(0, digit));
           }
           interimSum -= digit * i;
         }
 
-        return +randomArr.join("");
+        return +digitsArr.join("");
       };
+
     </script>
 
     <style type="text/css">
