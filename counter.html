@@ -14,6 +14,8 @@
 
     <div id="param" class="param">
 
+      <img src="logo2.2.3.png" alt="IQKIDS">
+
       <div class="field">
         <label for="digits">Количество разрядов</label>
         <input type="text" id="digits" value="2">
@@ -174,15 +176,18 @@
 
         body {
           font-family: sans-serif;
-          width:500px;
           height:auto;
           text-align: center;
-          margin-left:auto;
-          margin-right:auto;
         }
 
         .param {
-            float:left;
+          //border: 1px solid black;
+          padding: 20px;
+          width: 250px;
+          position: absolute;
+          right: 0;
+          left: 0;
+          margin: auto;
         }
 
         .param.hide {
@@ -203,6 +208,16 @@
 
         input[type="text"] {
             width: 40px;
+            text-align: right;
+        }
+
+        input[type="button"] {
+            margin-top: 15px;
+        }
+
+        img {
+          width: 250px;
+          margin-bottom: 50px;
         }
 
         .field {
