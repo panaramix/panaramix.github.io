@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Числа</title>
+
+</head>
+<body>
+    <div id="numbers" class="numbers">
+      <div id="numArray"  class="debug"></div>
+      <div id="sumArray" class="debug"></div>
+      <h1 id="counter"></h1>
+    </div>
+
+    <div id="param" class="param">
+
+      <img src="logo2.2.3.png" alt="IQKIDS">
+
+      <div class="field">
+        <label for="digits">Количество разрядов</label>
+        <input type="text" id="digits" value="2">
+      </div>
+
+      <div class="field">
+        <label for="amount">Количество чисел</label>
+        <input type="text" id="amount" value="10">
+      </div>
+
+      <div class="field">
+        <label for="interval">Интервал, мс</label>
+        <input type="text" id="interval" value="2000">
+      </div>
+
+      <div class="field" title="Только сложение">
+        <label for="plus">Только сложение</label>
+        <input name="mode" type="radio" value="plus" checked>
+      </div>
+
+      <div class="field" title="Сложение и вычитание">
+        <label for="plusminus">Сложение и вычитание</label>
+        <input name="mode" type="radio" value="plusminus">
+      </div>
+
+      <div class="field" title="Сложение и вычитание (без переноса на старший разряд)">
+        <label for="nocarryover">Упрощенный режим</label>
+        <input name="mode" type="radio" value="nocarryover">
+      </div>
+
+        <input type="button" value="Начать" onClick="startCount()"/>
+    </div>
+
+
+
+    <script type="text/javascript">
+
+      var numArrayElem = document.getElementById("numArray");
+      var sumArrayElem = document.getElementById("sumArray");
+      var counterElem = document.getElementById('counter');
+      var paramElem = document.getElementById('param');
+      var numbersElem = document.getElementById('numbers');
+
+      function startCount() {
+
+        var digits =  parseInt(document.getElementById("digits").value, 10);
+        var amount = parseInt(document.getElementById("amount").value, 10);
+        var interval = parseInt(document.getElementById("interval").value, 10);
+        var mode = document.querySelector('input[name="mode"]:checked').value;
+
+        var arr = [];
+        var sumArr = [];
+        var randomNum;
+        var lastNum = 0;
+        var interimSum = 0;
+
+        for (var i = 0; i < amount; i ++) {
+
+          switch(mode) {
+            case 'plus':
+              var max = Math.pow(10, digits) - 1;
+              randomNum = randomInteger(0, max);
+              break;
+
+            case 'plusminus':
+              randomNum = getRandomPlusMinus(digits, interimSum);
+              break;
+
+            case 'nocarryover':
+              randomNum = getRandomNoCarryOver(digits, interimSum);
+          }
+
+          if (randomNum == 0 || randomNum == lastNum) {
+            i --;
+            continue;
+          }
+          arr.push(randomNum);
+          lastNum = randomNum;
+          interimSum += randomNum;
+          sumArr.push(interimSum);
+        }
+
+        numArrayElem.innerHTML = arr;
+        sumArrayElem.innerHTML = sumArr;
+        numbersElem.classList.toggle('show');
+        paramElem.classList.toggle('hide');
+
+        counterElem.innerHTML = arr[0];
+        var j = 0;
+        var intervalId = setInterval(function () {
+          if (++ j < arr.length) {
+            counterElem.innerHTML = arr[j];
+          }
+        }, interval);
+
+        setTimeout(function () {
+          clearInterval(intervalId);
+          numbersElem.classList.toggle('show');
+          paramElem.classList.toggle('hide');
+        }, amount * interval);
+      };
+
+      function randomInteger(min, max) {
+        var rand = min + Math.random() * (max + 1 - min);
+        rand = Math.floor(rand);
+        return rand;
+      };
+
+      function getRandomPlusMinus(digits, interimSum) {
+
+        var max = Math.pow(10, digits) - 1;
+        if (interimSum == 0) {
+          return randomInteger(1, max);
+        }
+
+        var num = randomInteger(1, max) - interimSum;
+        return num != 0 ? num : - interimSum;
+      }
+
+      function getRandomNoCarryOver(digits, interimSum) {
+
+        if (interimSum == 0) {
+          var max = Math.pow(10, digits) - 1;
+          return randomInteger(1, max);
+        }
+
+        var digitsArr = [];
+        var divider =  Math.pow(10, digits - 1);
+        var digit = Math.floor(interimSum / divider);
+        var highDigit = randomInteger(0, 9) - digit;
+        digitsArr.push(highDigit);
+        interimSum -= digit * divider;
+
+        for (var i = divider / 10; i >= 1; i /= 10) {
+          digit = Math.floor(interimSum / i);
+          if (highDigit >= 0) {
+            digitsArr.push(randomInteger(0, 9 - digit));
+          } else {
+            digitsArr.push(randomInteger(0, digit));
+          }
+          interimSum -= digit * i;
+        }
+
+        return +digitsArr.join("");
+      };
+
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-105329180-1', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+
+    <style type="text/css">
+
+        body {
+          font-family: sans-serif;
+          height:auto;
+          text-align: center;
+        }
+
+        .param {
+          //border: 1px solid black;
+          padding: 20px;
+          width: 250px;
+          position: absolute;
+          right: 0;
+          left: 0;
+          margin: auto;
+        }
+
+        .param.hide {
+            display: none;
+        }
+
+        .numbers {
+          display: none;
+        }
+
+        .numbers.show {
+          display: block;
+        }
+
+        h1 {
+          font-size: 1500%;
+        }
+
+        input[type="text"] {
+            width: 40px;
+            text-align: right;
+        }
+
+        input[type="button"] {
+            margin-top: 15px;
+        }
+
+        img {
+          width: 250px;
+          margin-bottom: 50px;
+        }
+
+        .field {
+            clear:both;
+            text-align:right;
+            line-height:25px;
+        }
+
+        label {
+            float:left;
+            padding-right:10px;
+        }
+    </style>
+
+</body>
+</html>
